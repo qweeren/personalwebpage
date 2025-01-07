@@ -1,9 +1,11 @@
 <script>
     import { fade, fly, slide } from 'svelte/transition';
     import { quintOut } from 'svelte/easing';
-    import { ArrowRight, Github, Linkedin, Mail, Moon, Sun } from 'lucide-svelte';
+    import { ArrowRight, Github, Linkedin, Mail, Moon, SquareTerminalIcon, Sun } from 'lucide-svelte';
     import HeroBackground from '$lib/HeroBackground.svelte';
+    import Professions from '$lib/Professions.svelte';
     import { onMount } from 'svelte';
+    import { link } from 'svelte-spa-router';
   
     let activeSection = 'home'; // Keeps track of which section is currently active
     let showMobileMenu = false; // Controls the visibility of the mobile menu
@@ -12,45 +14,44 @@
     // An array of objects representing different projects/works
     const works = [
       { 
-        title: 'Project 1', 
-        description: 'A brief description of the project and its key features.',
+        title: 'Content Warning Mods', 
+        description: 'Mods I made for the game Content Warning.',
         subProjects: [
-          { name: 'Sub Project A' },
-          { name: 'Sub Project B' },
-          { name: 'Sub Project C' },
+          { name: 'Where My Bell At?' },
+          { name: 'Detailed Face Rotation' },
+          { name: 'More Stamina' },
         ],
-        image: '/placeholder.svg?height=300&width=400'
+        image: '/cwmods.png?height=300&width=400',
+        link: 'https://steamcommunity.com/id/erenyrd/myworkshopfiles/?appid=2881650'
       },
       { 
-        title: 'Project 2', 
-        description: 'Another project showcasing different skills and technologies.',
-        image: '/placeholder.svg?height=300&width=400'
+        title: 'Minecraft Mods', 
+        description: 'Mods/Modpacks/Shaders I made for Minecraft.',
+        subProjects: [
+          { name: 'Brighter Accesibility' },
+          { name: 'Poops And Farts' },
+          { name: 'World Wide Wanders' },
+        ],
+        image: '/mcmods.png?height=300&width=400',
+        link: 'https://modrinth.com/user/qweren'
       },
       { 
-        title: 'Project 3', 
-        description: 'An innovative solution to a complex problem.',
-        image: '/placeholder.svg?height=300&width=400'
+        title: 'FNF TR', 
+        description: 'A translation mod for the game FNF.',
+        image: '/friday-night-funkin.gif?height=300&width=400',
+        link: 'https://gamebanana.com/mods/355919'
       },
       { 
-        title: 'Translator at Anime Who', 
-        description: 'I translate anime subtitles from English to Turkish in my free time.',
-        image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTe7S-lB1vd1n9iATvj5skkR3O5fcEwZdFf_w&s'
-      },
-      { 
-        title: 'Project 5', 
-        description: 'An app that pushes the boundaries of user experience.',
-        image: '/placeholder.svg?height=300&width=400'
-      },
-      { 
-        title: 'Project 6', 
-        description: 'A robust backend system with advanced features.',
-        image: '/placeholder.svg?height=300&width=400'
-      },
+        title: 'Personal Desktop Website', 
+        description: 'A fun project i made that imitates Windows XP and has smaller projects i have hosted on it.', 
+        image: '/personaldesktop.png?height=300&width=400',
+        link: 'https://qweren.vercel.app'
+      }
       
     ];
   
     // An array of strings representing hobbies
-    const hobbies = ['Coding', 'Graphic Design', 'Anime Translation', 'Rhythm Games'];
+    const hobbies = ['Coding', 'Graphic Design', 'Translation', 'Modding Games'];
   
     // Function to smoothly scroll to a specified section of the page
     /** @param {string} section */
@@ -93,6 +94,9 @@
     };
   
     // Age calculator function
+    /**
+     * @param {string | number | Date} birthDate
+     */
     function calculateAge(birthDate) {
         const today = new Date();
         const birth = new Date(birthDate);
@@ -114,13 +118,12 @@
     <header>
       <!-- Logo link that scrolls to the home section -->
       <a href="/" class="logo" on:click={() => scrollToSection('home')}>
-        <span class="sr-only">Eren</span> <!-- Screen reader text for accessibility -->
-        <span>Yördem</span> <!-- Placeholder initials, can be changed to your initials -->
+        <span class="sr-only">qweren</span> <!-- Screen reader text for accessibility -->
       </a>
       
       <!-- Navigation for desktop view -->
       <nav class="desktop-nav">
-        {#each ['about', 'hobbies', 'works'] as section}
+        {#each ['about', 'hobbies', 'projects'] as section}
           <a
             href="#{section}"
             class:active={activeSection === section}
@@ -139,13 +142,13 @@
           <line x1="3" y1="18" x2="21" y2="18"></line>
         </svg>
       </button>
-  
+      
       <!-- Add dark mode toggle before the mobile menu button -->
       <button 
-          class="theme-toggle"
-          class:dark={isDarkMode}
-          on:click={toggleDarkMode} 
-          aria-label="Toggle dark mode"
+        class:dark={isDarkMode}
+        on:click={toggleDarkMode} 
+        class="theme-toggle"
+        aria-label="Toggle dark mode"
       >
       </button>
     </header>
@@ -171,12 +174,12 @@
       <section id="home" class="hero">
         <HeroBackground />
         <div class="container" in:fade={{ duration: 1000 }}>
-          <h1>Eren</h1> <!-- Display the user's name -->
-          <p>ELT Student & Web Developer</p> <!-- Display user's title -->
+          <h1>qweren</h1> <!-- Display the user's name -->
+          <Professions/>
           <div class="cta-buttons">
             <!-- Button to navigate to the works section -->
             <a href="#works" class="button primary" on:click|preventDefault={() => scrollToSection('works')}>
-              My Works
+              My Projects
               <ArrowRight class="icon" />
             </a>
             <!-- Button to navigate to the about section -->
@@ -297,46 +300,46 @@
         </div>
       </section>
   
-      <!-- Works section -->
-      <section id="works" class="works">
-        <div class="container">
-          <h2 in:fly={{ y: 50, duration: 1000 }}>My Works</h2>
-          <div class="work-grid">
-            {#each works as work, index}
-              <div class="work-item" in:fly={{ y: 50, duration: 500, delay: index * 100 }}>
-                <img src="{work.image}" alt={work.title} /> <!-- Placeholder image for each project -->
-                <div class="work-content">
-                  <h3>{work.title}</h3> <!-- Display the title of the work -->
-                  <p>{work.description}</p> <!-- Display the description of the work -->
-                  {#if work.subProjects}
-                    <div class="sub-projects">
-                      {#each work.subProjects as subProject}
-                        <div class="sub-project-card">
-                          {subProject.name}
-                        </div>
-                      {/each}
-                    </div>
-                  {/if}
-                </div>
+    <!-- Works section -->
+    <section id="works" class="works">
+      <div class="container">
+        <h2 in:fly={{ y: 50, duration: 1000 }}>Some Of My Projects</h2>
+        <div class="work-grid">
+          {#each works as work, index}
+            <div class="work-item" in:fly={{ y: 50, duration: 500, delay: index * 100 }}>
+              <img src="{work.image}" alt={work.title} /> <!-- Placeholder image for each project -->
+              <div class="work-content">
+                <h3>{work.title}</h3> <!-- Display the title of the work -->
+                <p>{work.description}</p> <!-- Display the description of the work -->
+                <button on:click={() => window.open(work.link, '_blank')} class="button">View Project</button> <!-- Button to view project -->
+                {#if work.subProjects}
+                  <div class="sub-projects">
+                    {#each work.subProjects as subProject}
+                      <div class="sub-project-card">
+                        {subProject.name}
+                      </div>
+                    {/each}
+                  </div>
+                {/if}
               </div>
-            {/each}
-          </div>
+            </div>
+          {/each}
         </div>
-      </section>
-    </main>
+      </div>
+    </section>
   
     <!-- Footer section with social links -->
     <footer>
-      <p>© 2024 Eren. All rights reserved.</p>
+      <p class="social-links">© 2024 Eren. All rights reserved.</p>
       <nav class="social-links">
-        <a href="#" aria-label="GitHub">
+        <a href="https://github.com/qweeren/" aria-label="GitHub">
           <Github /> <!-- GitHub icon link -->
         </a>
-        <a href="#" aria-label="LinkedIn">
-          <Linkedin /> <!-- LinkedIn icon link -->
+        <a href="https://steamcommunity.com/id/erenyrd/" aria-label="Steam">
+          <img src="/steam.svg" style="width: 30px; height:30px;" alt="Steam"/> <!-- Steam icon link -->
         </a>
-        <a href="#" aria-label="Email">
-          <Mail /> <!-- Email icon link -->
+        <a href="https://open.spotify.com/user/15apjwc8ui4nhsc7lq90a4h7g?si=70824440834d46d5" aria-label="spotify">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/8/84/Spotify_icon.svg" style="width: 30px; height:30px;" alt="Spotify"/> <!-- Steam icon link -->
         </a>
       </nav>
     </footer>
@@ -406,12 +409,16 @@
 
     /* Logo styles */
     .logo {
-        font-size: 1.25rem;
+        font-size: 2rem;
+        text-decoration: none;
+        margin-top: 13px;
         font-weight: 700;
         letter-spacing: -0.5px;
         background: linear-gradient(45deg, var(--accent-primary), var(--accent-secondary));
-        -webkit-background-clip: text;
+        -webkit-background-clip: text; /* Vendor prefix for WebKit */
+        background-clip: text; /* Standard property for compatibility */
         -webkit-text-fill-color: transparent;
+        margin-bottom: 1rem;
         padding: 0.5rem 0;
     }
 
@@ -645,7 +652,8 @@
     /* Web technologies trio styling */
     .web-trio {
         display: flex;
-        flex-direction: column;
+        flex-direction: row;
+        margin-bottom: 20px;
         align-items: center;
         gap: 0.75rem;
     }
@@ -928,13 +936,14 @@
         transition: all 0.3s ease;
         margin-right: 1rem;
         position: relative;
+        font-size: 10px;
     }
 
     .theme-toggle::before {
         content: '';
         position: absolute;
-        width: 20px;
-        height: 20px;
+        width: 25px;
+        height: 25px;
         background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>');
         transition: transform 0.3s ease;
     }
@@ -944,30 +953,6 @@
         transform: rotate(360deg);
     }
 
-    /* Font loading */
-    @font-face {
-        font-family: 'Inter';
-        src: url('/fonts/Inter-Regular.woff2') format('woff2'),
-             url('/fonts/Inter-Regular.woff') format('woff');
-        font-weight: 400;
-        font-display: swap;
-    }
-
-    @font-face {
-        font-family: 'Inter';
-        src: url('/fonts/Inter-Medium.woff2') format('woff2'),
-             url('/fonts/Inter-Medium.woff') format('woff');
-        font-weight: 500;
-        font-display: swap;
-    }
-
-    @font-face {
-        font-family: 'Inter';
-        src: url('/fonts/Inter-Bold.woff2') format('woff2'),
-             url('/fonts/Inter-Bold.woff') format('woff');
-        font-weight: 700;
-        font-display: swap;
-    }
 
     /* Fix for hero gradient and content layering */
     .hero .container {

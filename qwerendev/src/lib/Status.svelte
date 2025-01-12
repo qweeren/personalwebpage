@@ -1,6 +1,6 @@
 <script lang="ts">
     import { onMount } from 'svelte';
-
+  
     export let isDarkMode: boolean; // Import the prop
   
     // Types for Last.fm API response
@@ -116,10 +116,34 @@
         <div class="track-details">
           {#if currentTrack.nowPlaying}
             <div class="now-playing-badge">Now Playing</div>
+          {:else}
+            <div class="last-listened-badge">Last Listened</div>
           {/if}
-          <h2 class="track-title">{currentTrack.title}</h2>
-          <p class="track-artist">{currentTrack.artist}</p>
-          <p class="track-album">{currentTrack.album}</p>
+          <h2 class="track-title">
+            <a
+              href={`https://open.spotify.com/track/${currentTrack.title}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              class:dark-mode={isDarkMode}
+              >{currentTrack.title}</a
+            >
+          </h2>
+          <p class="track-artist">
+            <a
+              href={`https://open.spotify.com/artist/${currentTrack.artist}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              >{currentTrack.artist}</a
+            >
+          </p>
+          <p class="track-album">
+            <a
+              href={`https://open.spotify.com/album/${currentTrack.album}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              >{currentTrack.album}</a
+            >
+          </p>
         </div>
       </div>
     {:else}
@@ -131,10 +155,20 @@
     .now-playing-container {
       max-width: 400px;
       padding: 1.5rem;
-      border-radius: 12px;
-      background: var(--background-color, #fff);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-      transition: background 0.3s, color 0.3s;
+      display: flex;
+    flex-direction: column;
+    border-radius: 24px;
+    overflow: hidden;
+    background: var(--card-bg);
+    border: 1px solid rgba(var(--particle-color), 0.1);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    height: 100%;
+    -webkit-tap-highlight-color: transparent;
+    }
+
+    .now-playing-container:hover {
+      transform: translateY(-8px);
+      box-shadow: var(--shadow-hover);
     }
   
     .track-info {
@@ -161,21 +195,41 @@
       padding: 0.5rem 0.75rem;
       border-radius: 20px;
       font-size: 0.875rem;
+      font-weight: 300;
       margin-bottom: 0.5rem;
     }
   
-    .track-title {
+    .last-listened-badge {
+      display: inline-block;
+      background: rgb(100, 100, 100);
+      color: white;
+      padding: 0.5rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.875rem;
+      font-weight: 300;
+      margin-bottom: 0.5rem;
+    }
+  
+    .track-title,
+    .track-artist,
+    .track-album {
       margin: 0;
+    }
+  
+    .track-title {
       font-size: 1.5rem;
       font-weight: bold;
     }
   
     .track-artist {
+        font-weight: 300;
       margin: 0.25rem 0;
       color: #666;
     }
   
     .track-album {
+        
+        font-weight: 300;
       margin: 0;
       color: #888;
       font-size: 0.9rem;
@@ -193,10 +247,24 @@
       color: #dc2626;
     }
   
+    /* Link styles */
+    a {
+      text-decoration: none;
+      color: #2d3436;
+    }
+
+    a:hover{
+        text-decoration: underline;
+    }
+  
     /* Dark mode styles */
     :global(.dark-mode) {
       --background-color: #1a1b1e;
       color: #e0e0e0;
+    }
+  
+    :global(.dark-mode) a {
+      color: #fff;
     }
   </style>
   

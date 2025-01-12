@@ -195,6 +195,8 @@
         <div class="container">
           <Status {isDarkMode}/>
 
+          <hr>
+
           <h2 in:fly={{ y: 50, duration: 1000 }}>About Me</h2>
           
           <div class="about-content" in:fly={{ y: 50, duration: 1000, delay: 200 }}>
@@ -213,6 +215,7 @@
                     </a>
                 </div>
             </div>
+
 
             <!-- Skills Section -->
             <div class="skills-section">
@@ -287,6 +290,7 @@
           </div>
         </div>
       </section>
+
   
       <!-- Hobbies section -->
       <section id="hobbies" class="hobbies">
@@ -301,6 +305,7 @@
           </div>
         </div>
       </section>
+
   
     <!-- Works section -->
     <section id="works" class="works">
@@ -422,6 +427,10 @@
         -webkit-text-fill-color: transparent;
         margin-bottom: 1rem;
         padding: 0.5rem 0;
+    }
+
+    hr{
+        margin: 30px; 
     }
 
     /* Navigation styles */

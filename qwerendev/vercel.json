@@ -1,12 +1,7 @@
 {
     "version": 2,
-    "builds": [
-      {
-        "src": "package.json",
-        "use": "@vercel/node"
-      }
-    ],
+    "framework": "sveltekit",
     "buildCommand": "npm run build",
-    "installCommand": "npm install",
-    "framework": "sveltekit"
-}
+    "devCommand": "npm run dev",
+    "outputDirectory": ".svelte-kit/vercel"
+  }

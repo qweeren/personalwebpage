@@ -5,7 +5,6 @@
     import HeroBackground from '$lib/HeroBackground.svelte';
     import Professions from '$lib/Professions.svelte';
     import { onMount } from 'svelte';
-    import { link } from 'svelte-spa-router';
   
     let activeSection = 'home'; // Keeps track of which section is currently active
     let showMobileMenu = false; // Controls the visibility of the mobile menu

@@ -5,6 +5,7 @@
     import HeroBackground from '$lib/HeroBackground.svelte';
     import Professions from '$lib/Professions.svelte';
     import { onMount } from 'svelte';
+    import Status from '$lib/Status.svelte';
   
     let activeSection = 'home'; // Keeps track of which section is currently active
     let showMobileMenu = false; // Controls the visibility of the mobile menu
@@ -192,6 +193,8 @@
       <!-- About section -->
       <section id="about" class="about">
         <div class="container">
+          <Status {isDarkMode}/>
+
           <h2 in:fly={{ y: 50, duration: 1000 }}>About Me</h2>
           
           <div class="about-content" in:fly={{ y: 50, duration: 1000, delay: 200 }}>

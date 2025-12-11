@@ -7,7 +7,7 @@
         <style>
             body {
                 font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-                background-color: #f0f4f8;
+                background-color: #191c1d;
                 display: flex;
                 flex-direction: column;
                 align-items: center;
@@ -15,14 +15,14 @@
             }
 
             h1 {
-                color: #2c3e50;
+                color: #ffffff;
                 margin-bottom: 10px;
             }
 
             .container {
                 display: flex;
                 gap: 20px;
-                background: white;
+                background: #363a41;
                 padding: 20px;
                 border-radius: 15px;
                 box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
@@ -73,6 +73,33 @@
                 background-color: #27ae60;
             }
 
+            .btn-alt {
+                background-color: #9b59b6;
+                color: white;
+            }
+
+            .btn-alt:hover {
+                background-color: #8e44ad;
+            }
+
+            .btn-blue {
+                background-color: #3498db;
+                color: white;
+            }
+
+            .btn-blue:hover {
+                background-color: #2980b9;
+            }
+
+            .btn-yellow {
+                background-color: #f1c40f;
+                color: #333;
+            }
+
+            .btn-yellow:hover {
+                background-color: #f39c12;
+            }
+
             .info-panel {
                 background: #ecf0f1;
                 padding: 15px;
@@ -110,7 +137,7 @@
 
             <div class="controls">
                 <button class="btn btn-new" onclick="generateScenario()">🎲 New Scenario</button>
-                <button class="btn btn-solve" onclick="togglePath()">🗺️ Show/Hide Path</button>
+                <button class="btn btn-solve" onclick="cyclePathMode()">🗺️ Cycle Path (Green → Blue → Yellow → Off)</button>
             </div>
         </div>
 
@@ -156,7 +183,9 @@
       let startPos = { x: 0, y: 0 };
       let endPos = { x: 0, y: 0 };
       let currentPath = [];
-      let showingPath = false;
+      let alternativePath1 = [];
+      let alternativePath2 = [];
+      let currentPathMode = 0; // 0 = off, 1 = green, 2 = blue, 3 = yellow
 
       function getRoadChar(x, y) {
         // Check neighbors: up, right, down, left
@@ -195,7 +224,7 @@
 
             function drawMap() {
                 // Clear canvas (road color)
-                ctx.fillStyle = '#354257';
+                ctx.fillStyle = '#363a41';
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
 
                 // Draw Roads with connectors
@@ -248,14 +277,40 @@
                     }
                 }
 
-                // Draw Path if enabled
-                if (showingPath && currentPath.length > 0) {
+                // Draw Path based on currentPathMode
+                if (currentPathMode === 1 && currentPath.length > 0) {
                     ctx.strokeStyle = 'rgba(46, 204, 113, 0.6)';
                     ctx.lineWidth = 8;
                     ctx.lineCap = 'round';
                     ctx.beginPath();
                     ctx.moveTo(startPos.x * tileSize + tileSize / 2, startPos.y * tileSize + tileSize / 2);
                     for (let p of currentPath) {
+                        ctx.lineTo(p.x * tileSize + tileSize / 2, p.y * tileSize + tileSize / 2);
+                    }
+                    ctx.stroke();
+                }
+
+                // Draw Alternative Path 1 (Blue) if enabled
+                if (currentPathMode === 2 && alternativePath1.length > 0) {
+                    ctx.strokeStyle = 'rgba(52, 152, 219, 0.7)';
+                    ctx.lineWidth = 8;
+                    ctx.lineCap = 'round';
+                    ctx.beginPath();
+                    ctx.moveTo(startPos.x * tileSize + tileSize / 2, startPos.y * tileSize + tileSize / 2);
+                    for (let p of alternativePath1) {
+                        ctx.lineTo(p.x * tileSize + tileSize / 2, p.y * tileSize + tileSize / 2);
+                    }
+                    ctx.stroke();
+                }
+
+                // Draw Alternative Path 2 (Yellow) if enabled
+                if (currentPathMode === 3 && alternativePath2.length > 0) {
+                    ctx.strokeStyle = 'rgba(241, 196, 15, 0.7)';
+                    ctx.lineWidth = 8;
+                    ctx.lineCap = 'round';
+                    ctx.beginPath();
+                    ctx.moveTo(startPos.x * tileSize + tileSize / 2, startPos.y * tileSize + tileSize / 2);
+                    for (let p of alternativePath2) {
                         ctx.lineTo(p.x * tileSize + tileSize / 2, p.y * tileSize + tileSize / 2);
                     }
                     ctx.stroke();
@@ -274,16 +329,16 @@
                 ctx.fillStyle = color;
                 ctx.fill();
                 ctx.strokeStyle = 'white';
-                ctx.lineWidth = 2;
+                ctx.lineWidth = 1;
                 ctx.stroke();
-                ctx.fillStyle = 'black';
+                ctx.fillStyle = 'white';
                 ctx.font = 'bold 14px Arial';
                 ctx.textAlign = 'center';
                 ctx.fillText(text, px, py - 15);
             }
 
             function generateScenario() {
-                showingPath = false;
+                currentPathMode = 0;
                 let valid = false;
                 while (!valid) {
                     // Generate random coordinates
@@ -304,13 +359,25 @@
 
                     // Calculate path to ensure they are actually connected
                     currentPath = findPath(startPos, endPos);
-                    if (currentPath.length > 0) valid = true;
+                    if (currentPath.length > 0) {
+                        // Find alternative paths using randomized pathfinding
+                        alternativePath1 = findAlternativePath(startPos, endPos);
+                        alternativePath2 = findAlternativePath(startPos, endPos);
+                        valid = true;
+                    }
                 }
                 drawMap();
             }
 
-      function togglePath() {
-        showingPath = !showingPath;
+      function cyclePathMode() {
+        // Cycle through: off (0) -> green (1) -> blue (2) -> yellow (3) -> off (0)
+        // Skip modes where the path doesn't exist
+        do {
+          currentPathMode = (currentPathMode + 1) % 4;
+        } while (
+          (currentPathMode === 2 && alternativePath1.length === 0) ||
+          (currentPathMode === 3 && alternativePath2.length === 0)
+        );
         drawMap();
       }            // Simple BFS Pathfinding
             function findPath(start, end) {
@@ -347,6 +414,71 @@
                     }
                 }
                 return [];
+            }
+
+            // Find alternative path using randomized DFS with detours
+            // Creates more diverse routes by allowing non-optimal choices
+            function findAlternativePath(start, end) {
+                // Use depth-first search with randomization and bias toward detours
+                function dfs(curr, visited, path, depthLimit) {
+                    if (depthLimit <= 0) return null;
+                    
+                    if (curr.y === end.y && curr.x === end.x) {
+                        return path;
+                    }
+
+                    // Create directions with random order
+                    const dirs = [
+                        [0, 1],
+                        [0, -1],
+                        [1, 0],
+                        [-1, 0]
+                    ];
+                    
+                    // Shuffle directions
+                    for (let i = dirs.length - 1; i > 0; i--) {
+                        const j = Math.floor(Math.random() * (i + 1));
+                        [dirs[i], dirs[j]] = [dirs[j], dirs[i]];
+                    }
+
+                    // Sometimes take a deliberate detour away from goal
+                    if (Math.random() < 0.15) {
+                        // 15% chance to explore a random direction instead of goal-directed
+                        const randomDir = dirs[Math.floor(Math.random() * dirs.length)];
+                        dirs.unshift(randomDir);
+                    }
+
+                    for (let d of dirs) {
+                        let ny = curr.y + d[0];
+                        let nx = curr.x + d[1];
+                        let key = ny + ',' + nx;
+                        
+                        if (
+                            ny >= 0 &&
+                            ny < gridSize &&
+                            nx >= 0 &&
+                            nx < gridSize &&
+                            mapLayout[ny][nx] === 0 &&
+                            !visited.has(key)
+                        ) {
+                            visited.add(key);
+                            let result = dfs({ y: ny, x: nx }, visited, [...path, { y: ny, x: nx }], depthLimit - 1);
+                            if (result) return result;
+                            visited.delete(key);
+                        }
+                    }
+                    
+                    return null;
+                }
+
+                let visited = new Set();
+                visited.add(start.y + ',' + start.x);
+                
+                // Try with a depth limit to avoid extremely long paths
+                const maxDistance = Math.abs(end.y - start.y) + Math.abs(end.x - start.x);
+                const depthLimit = maxDistance * 3; // Allow up to 3x optimal distance
+                
+                return dfs(start, visited, [], depthLimit) || [];
             }
 
             function getDirections(path) {

@@ -44,6 +44,10 @@
     let endPos = { x: 0, y: 0 };
     let currentPath = [];
     let showingPath = false;
+    let alternativePath1 = [];
+    let alternativePath2 = [];
+    let showingAlt1 = false;
+    let showingAlt2 = false;
 
     function getRoadChar(x, y) {
         const up = y > 0 && mapLayout[y - 1][x] === 0;

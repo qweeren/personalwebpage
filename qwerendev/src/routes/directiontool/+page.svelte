@@ -15,7 +15,7 @@
         [1, 0, 0, 0, 0, 1, 0, 0, 0, 1],
         [1, 0, 1, 1, 0, 1, 0, 1, 0, 1],
         [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-        [1, 0, 1, 1, 1, 1, 1, 1, 0, 1],
+        [1, 0, 1, 0, 1, 1, 0, 1, 0, 1],
         [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
         [1, 1, 1, 0, 1, 1, 0, 1, 1, 1]
     ];
@@ -35,7 +35,9 @@
         { x: 7, y: 7, name: 'Zoo', color: '#BBB0C1', icon: '🦒' },
         { x: 5, y: 4, name: 'Museum', color: '#BBB0C1', icon: '🏛️' },
         { x: 5, y: 4, name: 'University', color: '#BBB0C1', icon: '🎓' },
-        { x: 5, y: 2, name: 'Pharmacy', color: '#BBB0C1', icon: '💊' }
+        { x: 5, y: 2, name: 'Pharmacy', color: '#BBB0C1', icon: '💊' },
+        { x: 4, y: 7, name: 'Stadium', color: '#BBB0C1', icon: '🏟️' },
+        { x: 5, y: 7, name: 'Dentist', color: '#BBB0C1', icon: '🦷' },
     ];
 
     let startPos = { x: 0, y: 0 };

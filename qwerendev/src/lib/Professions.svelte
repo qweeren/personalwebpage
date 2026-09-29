@@ -1,71 +1,105 @@
 <script>
-    import { onMount } from "svelte";
-    
-    // Define a dictionary of text options
-    export let textOptions = ["ELT Student", "Developer", "Translator", "Designer", "Editor"];
-    
-    // Current index of the displayed text
-    let currentIndex = 0;
-  
-    // Change text every second
+    // Burned-in subtitles that hard-cut between roles, jumping around the frame
+    // like lyric captions in a music video.
+    import { onMount } from 'svelte';
+
+    /** @type {{ textOptions?: string[] }} */
+    let { textOptions =['ELT student', 'developer', 'translator', 'designer', 'editor'] } = $props();
+
+    let index = $state(0);
+    let slot = $state(0);
+    let inverted = $state(false);
+    let doubled = $state(false);
+    let tilt = $state(0);
+
     onMount(() => {
-      const interval = setInterval(() => {
-        currentIndex = (currentIndex + 1) % textOptions.length;
-      }, 2000);
-  
-      return () => clearInterval(interval); // Cleanup on unmount
+        if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        /** @type {ReturnType<typeof setTimeout>} */
+        let timer;
+        const cut = () => {
+            index = (index + 1) % textOptions.length;
+            slot = Math.floor(Math.random() * 4);
+            inverted = Math.random() < 0.3;
+            doubled = Math.random() < 0.25;
+            tilt = Math.random() < 0.3 ? (Math.random() - 0.5) * 8 : 0;
+            timer = setTimeout(cut, 520 + Math.random() * 1100);
+        };
+        timer = setTimeout(cut, 900);
+        return () => clearTimeout(timer);
     });
-  </script>
-  
-  <style>
+</script>
 
-  .flip-container {
-    margin: auto;
-    margin-bottom: 25px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 50px;
-    width: 200px;
-    font-size: 1.5rem;
-    text-align: center;
-    overflow: hidden;
-    position: relative;
-    perspective: 1000px;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  }
+<p class="sr-only">{textOptions.join(', ')}</p>
 
-  
-    .flip-text {
-      position: absolute;
-      backface-visibility: hidden;
-      transition: transform 1s cubic-bezier(0.075, 0.82, 0.165, 1);
-      transform-origin: center;
-      width: 100%;
+<div class="captions slot-{slot}" aria-hidden="true">
+    {#key index}
+        <span class="cap" class:inverted style="--tilt: {tilt}deg">{textOptions[index]}</span>
+        {#if doubled}
+            <span class="cap ghost" class:inverted style="--tilt: {tilt}deg">{textOptions[index]}</span>
+        {/if}
+    {/key}
+</div>
+
+<style>
+    .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+        white-space: nowrap;
     }
-  
-    .flip-enter {
-      transform: rotateX(90deg);
+
+    .captions {
+        position: absolute;
+        z-index: 4;
+        pointer-events: none;
     }
-  
-    .flip-active {
-      transform: rotateX(0deg);
+    .slot-0 { left: 6vw; bottom: 22vh; }
+    .slot-1 { right: 9vw; top: 21vh; }
+    .slot-2 { left: 38vw; bottom: 13vh; }
+    .slot-3 { left: 12vw; top: 30vh; }
+
+    .cap {
+        display: inline-block;
+        font-family: 'Archivo', sans-serif;
+        font-variation-settings: 'wdth' 62;
+        font-weight: 800;
+        font-size: clamp(1.4rem, 3.4vw, 2.6rem);
+        line-height: 1;
+        letter-spacing: -0.02em;
+        padding: 0.12em 0.3em 0.16em;
+        background: #fff;
+        color: #000;
+        transform: rotate(var(--tilt));
+        animation: burn 0.14s steps(2) both;
     }
-  
-    .flip-exit {
-      transform: rotateX(-90deg);
+    .cap.inverted {
+        background: #000;
+        color: #fff;
+        outline: 2px solid #fff;
+        outline-offset: -2px;
     }
-  </style>
-  
-  <div class="flip-container">
-    {#each textOptions as option, i}
-      <div
-        class="flip-text {i === currentIndex ? 'flip-active' : i < currentIndex ? 'flip-exit' : 'flip-enter'}"
-        style="visibility: {i === currentIndex ? 'visible' : 'hidden'};"
-      >
-        {option}
-      </div>
-    {/each}
-  </div>
-  
+    .ghost {
+        position: absolute;
+        left: 0.4em;
+        top: 0.55em;
+        opacity: 0.45;
+        mix-blend-mode: difference;
+        animation: burn 0.14s steps(2) both, jitter 0.18s steps(2) infinite;
+    }
+
+    @keyframes burn {
+        0% { opacity: 0; transform: rotate(var(--tilt)) translateX(-18px) scaleY(1.6); }
+        50% { opacity: 1; transform: rotate(var(--tilt)) translateX(10px) scaleY(0.7); }
+        100% { opacity: 1; transform: rotate(var(--tilt)); }
+    }
+    @keyframes jitter {
+        50% { transform: translate(-6px, 2px); }
+    }
+
+    @media (max-width: 640px) {
+        .slot-1 { right: 4vw; top: 18vh; }
+        .slot-2 { left: 20vw; bottom: 17vh; }
+    }
+</style>

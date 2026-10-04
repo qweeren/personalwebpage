@@ -288,6 +288,18 @@
 <svelte:head>
     <title>qweren</title>
     <meta name="description" content="Eren (qweren): ELT student, developer and translator. Game mods, websites and other projects." />
+    <link rel="me" href="https://plugincim.net/" />
+    {@html `<script type="application/ld+json">${JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'Person',
+        name: 'Eren',
+        alternateName: 'qweren',
+        sameAs: [
+            'https://plugincim.net/',
+            'https://github.com/qweeren/',
+            'https://steamcommunity.com/id/erenyrd/'
+        ]
+    })}</script>`}
 </svelte:head>
 
 {#snippet chain(reverse = false, tilt = 0)}

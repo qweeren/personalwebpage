@@ -6,6 +6,7 @@
     import Status from '$lib/Status.svelte';
     import Timeline from '$lib/Timeline.svelte';
     import Cursor from '$lib/Cursor.svelte';
+    import { rewindSound } from '$lib/tape.svelte.js';
 
     const works = [
         {
@@ -127,11 +128,12 @@
     }
 
     function rewind() {
+        const from = scrollY;
+        const dur = Math.min(1700, 500 + from * 0.12);
+        rewindSound(reduce ? 400 : dur);
         if (reduce) return window.scrollTo({ top: 0, behavior: 'instant' });
         rewinding = true;
-        const from = scrollY;
         const t0 = performance.now();
-        const dur = Math.min(1700, 500 + from * 0.12);
         /** @param {number} now */
         const step = (now) => {
             const k = Math.min(1, (now - t0) / dur);

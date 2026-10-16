@@ -1,5 +1,5 @@
 <script>
-    // Procedural "found footage": a hooded figure filmed three ways, cut together
+    // Procedural "found footage": an empty room filmed three ways, cut together
     // like a music video. Rendered at very low resolution, then crushed, grained
     // and smeared per-pixel so it reads as cheap camcorder / CCTV footage.
     import { onMount } from 'svelte';
@@ -20,7 +20,7 @@
         /** @type {Float32Array} */ let lum = new Float32Array(0);
         /** @type {Float32Array} */ let prev = new Float32Array(0);
 
-        /** @type {{mode: string, zoom: number, x: number, low: boolean, mirror: boolean, tapeX: number, tapeY: number}} */
+        /** @type {{mode: string, tapeX: number, tapeY: number}} */
         let shot;
         let shotEnd = 0, lastFlash = -1e9, nextFlash = 0, dragUntil = 0, glitchUntil = 0, cutFrames = 0;
         let flashLit = false, visible = true, raf = 0, lastFrame = 0;
@@ -40,13 +40,8 @@
         function newShot(now) {
             let mode = MODES[Math.floor(Math.random() * 3)];
             if (shot && mode === shot.mode) mode = MODES[(MODES.indexOf(mode) + 1 + Math.floor(Math.random() * 2)) % 3];
-            const close = Math.random() < 0.35;
             shot = {
                 mode,
-                zoom: close ? rand(1.45, 1.9) : rand(0.8, 1.15),
-                x: rand(0.28, 0.74),
-                low: Math.random() < 0.4,
-                mirror: Math.random() < 0.5,
                 tapeX: rand(0.1, 0.9),
                 tapeY: rand(0.2, 0.45)
             };
@@ -57,87 +52,9 @@
             onmode(mode);
         }
 
-        /**
-         * Hooded figure. Everything is in units of u (roughly head-top to frame bottom).
-         * @param {number} cx @param {number} by @param {number} u @param {number} t
-         * @param {string} body @param {string} face @param {string} shade
-         */
-        function figure(cx, by, u, t, body, face, shade = body, glint = 0, eyes = 0) {
-            ctx.save();
-            ctx.translate(cx, by);
-            if (shot.mirror) ctx.scale(-1, 1);
-            ctx.rotate(Math.sin(t * 0.0011) * 0.025);
-            ctx.fillStyle = body;
-            ctx.beginPath();
-            ctx.moveTo(-0.7 * u, 0.05 * u);
-            ctx.bezierCurveTo(-0.66 * u, -0.26 * u, -0.56 * u, -0.38 * u, -0.3 * u, -0.46 * u);
-            ctx.bezierCurveTo(-0.27 * u, -0.6 * u, -0.34 * u, -0.86 * u, -0.1 * u, -0.98 * u);
-            ctx.quadraticCurveTo(0.02 * u, -1.05 * u, 0.12 * u, -0.99 * u);
-            ctx.bezierCurveTo(0.33 * u, -0.9 * u, 0.3 * u, -0.62 * u, 0.28 * u, -0.46 * u);
-            ctx.bezierCurveTo(0.55 * u, -0.38 * u, 0.66 * u, -0.26 * u, 0.72 * u, 0.05 * u);
-            ctx.closePath();
-            ctx.fill();
-
-            // inner hood fabric, then the face: never visible, just a hole
-            ctx.fillStyle = shade;
-            ctx.beginPath();
-            ctx.ellipse(0.01 * u, -0.68 * u, 0.19 * u, 0.235 * u, -0.06, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.fillStyle = face;
-            ctx.beginPath();
-            ctx.ellipse(0.01 * u, -0.68 * u, 0.145 * u, 0.185 * u, -0.06, 0, Math.PI * 2);
-            ctx.fill();
-
-            // hoodie drawstrings
-            ctx.strokeStyle = shade;
-            ctx.lineWidth = Math.max(1, 0.014 * u);
-            ctx.beginPath();
-            ctx.moveTo(-0.09 * u, -0.5 * u); ctx.lineTo(-0.11 * u, -0.3 * u + Math.sin(t * 0.003) * 0.01 * u);
-            ctx.moveTo(0.11 * u, -0.5 * u); ctx.lineTo(0.12 * u, -0.32 * u + Math.cos(t * 0.003) * 0.01 * u);
-            ctx.stroke();
-
-            if (eyes > 0) {
-                ctx.fillStyle = `rgba(255,255,255,${eyes})`;
-                const blink = Math.sin(t * 0.004) > 0.97 ? 0.2 : 1;
-                ctx.fillRect(-0.06 * u, -0.75 * u, 0.028 * u, 0.02 * u * blink);
-                ctx.fillRect(0.04 * u, -0.75 * u, 0.028 * u, 0.02 * u * blink);
-            }
-
-            if (glint > 0) {
-                // grillz + fangs catching the light
-                ctx.fillStyle = `rgba(255,255,255,${glint})`;
-                ctx.fillRect(-0.07 * u, -0.615 * u, 0.15 * u, 0.028 * u);
-                ctx.beginPath();
-                ctx.moveTo(-0.055 * u, -0.588 * u); ctx.lineTo(-0.035 * u, -0.588 * u); ctx.lineTo(-0.045 * u, -0.55 * u);
-                ctx.moveTo(0.045 * u, -0.588 * u); ctx.lineTo(0.065 * u, -0.588 * u); ctx.lineTo(0.055 * u, -0.55 * u);
-                ctx.fill();
-                // star sparkle
-                const s = (0.05 + 0.04 * Math.sin(t * 0.02)) * u;
-                const gx = 0.06 * u, gy = -0.605 * u;
-                ctx.fillRect(gx - s, gy - 0.004 * u, s * 2, 0.008 * u);
-                ctx.fillRect(gx - 0.004 * u, gy - s, 0.008 * u, s * 2);
-            }
-
-            // chain + cross pendant
-            ctx.strokeStyle = glint > 0 ? `rgba(255,255,255,${glint * 0.8})` : 'rgba(90,90,90,1)';
-            ctx.lineWidth = Math.max(1, 0.012 * u);
-            ctx.beginPath();
-            ctx.moveTo(-0.2 * u, -0.46 * u);
-            ctx.quadraticCurveTo(0, -0.16 * u, 0.2 * u, -0.46 * u);
-            ctx.stroke();
-            ctx.fillStyle = ctx.strokeStyle;
-            ctx.fillRect(-0.012 * u, -0.29 * u, 0.024 * u, 0.13 * u);
-            ctx.fillRect(-0.045 * u, -0.26 * u, 0.09 * u, 0.022 * u);
-            ctx.restore();
-        }
-
         /** @param {number} now */
         function draw(now) {
             if (!shot || now > shotEnd) newShot(now);
-            const u = Math.min(H * 0.82, W * 0.9) * shot.zoom;
-            const cx = W * shot.x + (now < dragUntil ? Math.sin(now * 0.05) * W * 0.05 : 0);
-            const by = H * (shot.low ? 1.02 : 0.9) + (shot.zoom > 1.4 ? u * 0.3 : 0);
-
             if (shot.mode === 'flash' && now > nextFlash) {
                 lastFlash = now;
                 // never faster than ~2 flashes per second
@@ -148,7 +65,7 @@
             if (lit !== flashLit) { flashLit = lit; onflash(lit); }
 
             if (shot.mode === 'strip') {
-                // single fluorescent tube behind the figure
+                // single fluorescent tube
                 const flick = Math.random() < 0.05 ? 0.15 : Math.random() < 0.1 ? 0.7 : 1;
                 ctx.fillStyle = '#000';
                 ctx.fillRect(0, 0, W, H);
@@ -173,16 +90,11 @@
                     ctx.save(); ctx.rotate(a); ctx.fillRect(-H * 0.14, -H * 0.018, H * 0.28, H * 0.036); ctx.restore();
                 }
                 ctx.restore();
-                figure(cx, by, u, now, '#000', '#000', '#000', Math.random() < 0.08 ? 0.9 : 0);
             } else if (shot.mode === 'flash') {
-                // on-camera flash: subject blown out, room falls off to black
+                // on-camera flash: room pops, then falls off to black
                 const wall = Math.round(10 + 80 * f);
                 ctx.fillStyle = `rgb(${wall},${wall},${wall})`;
                 ctx.fillRect(0, 0, W, H);
-                const sh = 0.07 * u;
-                figure(cx + sh, by + sh * 0.4, u, now, '#000', '#000');
-                const v = Math.min(255, Math.round(88 + 300 * f));
-                figure(cx, by, u, now, `rgb(${v},${v},${v})`, '#000', `rgb(${v >> 1},${v >> 1},${v >> 1})`, Math.min(1, 0.35 + f));
             } else {
                 // IR night vision
                 const g = ctx.createRadialGradient(W * 0.5, H * 0.5, H * 0.1, W * 0.5, H * 0.5, W * 0.7);
@@ -190,7 +102,6 @@
                 g.addColorStop(1, '#101010');
                 ctx.fillStyle = g;
                 ctx.fillRect(0, 0, W, H);
-                figure(cx, by, u, now, '#262626', '#050505', '#161616', 0, 1);
             }
 
             if (cutFrames > 0) {
@@ -269,7 +180,7 @@
 
         resize();
         if (reduce) {
-            shot = { mode: 'strip', zoom: 1, x: 0.62, low: false, mirror: false, tapeX: 0.25, tapeY: 0.3 };
+            shot = { mode: 'strip', tapeX: 0.25, tapeY: 0.3 };
             shotEnd = Infinity;
             onmode('strip');
             draw(0);

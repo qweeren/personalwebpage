@@ -1,6 +1,6 @@
 <script lang="ts">
     import { onMount } from 'svelte';
-    import { tape, setTrack, toggle, armAutostart } from '$lib/tape.svelte.js';
+    import { tape, setTrack, armAutostart } from '$lib/tape.svelte.js';
 
     // Types for Last.fm API response
     interface LastFmImage {
@@ -112,13 +112,6 @@
             <span class="band"></span>
             <span class="reel right"></span>
         </div>
-
-        {#if tape.src}
-            <button class="transport" onclick={toggle} aria-label={tape.playing ? 'Pause preview' : 'Play a preview of this track'}>
-                <span aria-hidden="true">{tape.playing ? '❚❚' : '▶'}</span>
-                <small>{tape.playing ? 'stop' : 'play'}</small>
-            </button>
-        {/if}
     </div>
 
     {#if currentTrack?.albumArt}
@@ -250,28 +243,6 @@
     .reel.right { box-shadow: 0 0 0 1px #3a3a3a; }
     .playing .reel { animation-play-state: running; }
     .playing .reel.left { animation-duration: 2.3s; }
-
-    .transport {
-        position: absolute;
-        right: 4%;
-        bottom: 21%;
-        display: flex;
-        align-items: center;
-        gap: 0.35em;
-        font-family: 'Archivo', sans-serif;
-        font-variation-settings: 'wdth' 62;
-        font-weight: 800;
-        font-size: 0.85rem;
-        color: #000;
-        background: #e4f1ee;
-        border: 2px solid #000;
-        padding: 0.2em 0.5em;
-        cursor: pointer;
-        transform: rotate(-0.6deg);
-    }
-    .transport small { font-size: 0.7rem; text-transform: uppercase; }
-    .transport:hover,
-    .transport:focus-visible { background: #000; color: #fff; outline: 2px solid #e4f1ee; }
 
     .art {
         position: absolute;

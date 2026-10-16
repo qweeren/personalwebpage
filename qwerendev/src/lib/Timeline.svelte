@@ -1,6 +1,8 @@
 <script>
     // The page as an edit: every section is a clip on V1, scroll position is the
     // playhead. Click a clip to hard-cut to it, drag the audio lane to scrub.
+    // The deck on the right runs the actual soundtrack (see tape.svelte.js).
+    import { tape, toggle, setVolume } from '$lib/tape.svelte.js';
 
     /**
      * @type {{
@@ -88,6 +90,31 @@
         </div>
         <span class="playhead" style="--p: {progress}"></span>
     </div>
+
+    <div class="deck">
+        <button
+            class="transport"
+            onclick={toggle}
+            disabled={!tape.src}
+            aria-label={!tape.src ? 'No preview available' : tape.playing ? 'Pause music' : 'Play music'}
+            title={tape.track ? `${tape.track.title} / ${tape.track.artist}` : undefined}
+        >
+            <span aria-hidden="true">{tape.playing ? '❚❚' : '▶'}</span>
+        </button>
+        <label class="vol">
+            <span class="vol-cap" aria-hidden="true">vol</span>
+            <input
+                type="range"
+                min="0"
+                max="1"
+                step="0.01"
+                value={tape.volume}
+                style="--v: {tape.volume}"
+                aria-label="Music volume"
+                oninput={(e) => setVolume(+e.currentTarget.value)}
+            />
+        </label>
+    </div>
 </nav>
 
 <style>
@@ -98,7 +125,7 @@
         bottom: 0;
         z-index: 60;
         display: grid;
-        grid-template-columns: auto 1fr;
+        grid-template-columns: auto 1fr auto;
         background: #000;
         border-top: 3px solid #fff;
         font-family: 'Archivo', sans-serif;
@@ -216,6 +243,72 @@
         border-top-color: #fff;
     }
 
+    .deck {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 0 12px;
+        border-left: 3px solid #fff;
+    }
+    .transport {
+        display: grid;
+        place-items: center;
+        width: 34px;
+        height: 34px;
+        margin: 0;
+        padding: 0;
+        font: inherit;
+        font-weight: 800;
+        font-size: 0.95rem;
+        color: #000;
+        background: #e4f1ee;
+        border: 2px solid #fff;
+        cursor: pointer;
+    }
+    .transport:hover:not(:disabled) { background: #000; color: #fff; }
+    .transport:disabled { background: #3a3a3a; color: #8a8a8a; border-color: #3a3a3a; cursor: default; }
+
+    .vol {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+    .vol-cap {
+        font-size: 0.68rem;
+        font-weight: 700;
+        color: #8a8a8a;
+        text-transform: uppercase;
+        line-height: 1;
+    }
+    .vol input {
+        --v: 0.45;
+        appearance: none;
+        width: 92px;
+        height: 12px;
+        margin: 0;
+        background: linear-gradient(90deg, #6f9c8e calc(var(--v) * 100%), #3a3a3a 0);
+        cursor: ew-resize;
+    }
+    .vol input::-webkit-slider-thumb {
+        appearance: none;
+        width: 6px;
+        height: 18px;
+        background: #fff;
+        border: 0;
+    }
+    .vol input::-moz-range-thumb {
+        width: 6px;
+        height: 18px;
+        background: #fff;
+        border: 0;
+        border-radius: 0;
+    }
+    .transport:focus-visible,
+    .vol input:focus-visible {
+        outline: 3px solid #6f9c8e;
+        outline-offset: 2px;
+    }
+
     @keyframes jit { 50% { transform: translateX(3px); } }
 
     @media (max-width: 640px) {
@@ -224,5 +317,9 @@
         .tc-cap { display: none; }
         .tracks { --lane: 20px; }
         .clip { font-size: 0.7rem; padding: 0 3px; border-left-width: 3px; }
+        .deck { gap: 6px; padding: 0 6px; }
+        .transport { width: 30px; height: 30px; }
+        .vol-cap { display: none; }
+        .vol input { width: 54px; }
     }
 </style>

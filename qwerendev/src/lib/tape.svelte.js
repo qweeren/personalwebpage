@@ -1,6 +1,9 @@
 // The page's soundtrack: a 30s preview (via /api/preview) of whatever Last.fm says was
-// played last, plus a synthesized tape-rewind whine. Browsers block audio
-// until the visitor interacts, so playback starts on their first click/tap/key.
+// played last, plus a synthesized tape-rewind whine. We try to start it as soon as
+// the preview loads; most browsers block that until the visitor interacts, so
+// otherwise playback starts on their first click/tap/key.
+
+const VOLUME_KEY = 'tape-volume';
 
 export const tape = $state({
     /** @type {{ title: string, artist: string } | null} */
@@ -8,7 +11,8 @@ export const tape = $state({
     src: '',
     playing: false,
     // false once the visitor pauses it themselves; then we stop auto-starting it
-    wanted: true
+    wanted: true,
+    volume: 0.45
 });
 
 /** @type {HTMLAudioElement | null} */
@@ -22,7 +26,7 @@ function el() {
         audio = new Audio();
         audio.preload = 'none';
         audio.loop = true;
-        audio.volume = 0.45;
+        audio.volume = tape.volume;
         audio.addEventListener('play', () => (tape.playing = true));
         audio.addEventListener('pause', () => (tape.playing = false));
         // signed preview links expire: look the track up again
@@ -51,7 +55,8 @@ export async function setTrack(title, artist) {
         tape.src = src;
         const a = el();
         a.src = src;
-        if (wasPlaying) a.play().catch(() => {});
+        // autoplay attempt; if the browser refuses, armAutostart picks it up on the first gesture
+        if (wasPlaying || tape.wanted) a.play().catch(() => {});
     } catch {
         if (lookup === key) tape.src = '';
     }
@@ -72,8 +77,25 @@ export function toggle() {
     tape.playing ? pause() : play();
 }
 
+/** @param {number} v 0..1 */
+export function setVolume(v) {
+    tape.volume = Math.min(1, Math.max(0, v));
+    if (audio) audio.volume = tape.volume;
+    try {
+        localStorage.setItem(VOLUME_KEY, String(tape.volume));
+    } catch {
+        // storage blocked: the setting just won't stick
+    }
+}
+
 // first gesture anywhere starts the music, unless the visitor already said no
 export function armAutostart() {
+    try {
+        const saved = parseFloat(localStorage.getItem(VOLUME_KEY) ?? '');
+        if (saved >= 0 && saved <= 1) setVolume(saved);
+    } catch {
+        // no storage (private mode): keep the default
+    }
     const start = () => {
         if (tape.wanted && tape.src && !tape.playing) el().play().catch(() => {});
         if (tape.src) off();

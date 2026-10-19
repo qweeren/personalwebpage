@@ -39,7 +39,7 @@
             title: 'discphew',
             description: 'A tiny Windows tool for reading and writing CDs and DVDs, in a single ~300 KB .exe.',
             subProjects: ['Disc Visualizer', 'Burner', 'Ripper', 'Album Player'],
-            image: '/discphew.svg',
+            image: '/discphew.png',
             link: 'https://github.com/qweeren/discphew'
         }
     ];

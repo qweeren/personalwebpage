@@ -229,7 +229,7 @@
         background-color: var(--drywall);
         /* paper face of the board: fine fibres, plus soft blotches of joint compound */
         background-image:
-            url("https://qweren.com/static/wall.webp"),
+            url("https://qweren.com/wall.webp"),
             radial-gradient(ellipse 90% 55% at 50% 0%, rgba(255, 252, 244, 0.5), transparent 70%);
         font-family: var(--grot, 'Archivo', sans-serif);
         font-variation-settings: 'wdth' 80;

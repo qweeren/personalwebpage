@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600">
+  <rect width="800" height="600" fill="#3a3a3a"/>
+  <g transform="translate(400 300)" fill="none">
+    <!-- unrecorded space -->
+    <circle r="262" fill="#1c1c1c"/>
+    <circle r="262" stroke="#555" stroke-width="2"/>
+    <!-- lead-out -->
+    <circle r="236" stroke="#3a3a3a" stroke-width="6"/>
+    <!-- tracks, each ring drawn at its radius on the spiral -->
+    <circle r="222" stroke="#9a9a9a" stroke-width="18"/>
+    <circle r="201" stroke="#6e6e6e" stroke-width="22"/>
+    <circle r="180" stroke="#b8b8b8" stroke-width="18"/>
+    <circle r="163" stroke="#7d7d7d" stroke-width="14"/>
+    <circle r="146" stroke="#d4d4d4" stroke-width="18"/>
+    <circle r="128" stroke="#8a8a8a" stroke-width="16"/>
+    <circle r="112" stroke="#c4c4c4" stroke-width="14"/>
+    <circle r="98" stroke="#6a6a6a" stroke-width="12"/>
+    <!-- lead-in -->
+    <circle r="88" stroke="#333" stroke-width="6"/>
+    <!-- mirror band -->
+    <circle r="72" stroke="#e8e8e8" stroke-width="22"/>
+    <!-- hub -->
+    <circle r="52" fill="#2a2a2a"/>
+    <circle r="20" fill="#3a3a3a"/>
+    <!-- hovered track -->
+    <circle r="146" stroke="#fff" stroke-width="20" stroke-dasharray="120 800" transform="rotate(-60)"/>
+  </g>
+  <!-- hover readout -->
+  <g font-family="Consolas, monospace" font-size="18" fill="#ddd">
+    <line x1="520" y1="185" x2="610" y2="120" stroke="#ddd" stroke-width="2"/>
+    <rect x="610" y="92" width="170" height="58" fill="#3a3a3a" stroke="#ddd" stroke-width="2"/>
+    <text x="622" y="116">track 05</text>
+    <text x="622" y="139">r 41.3 mm</text>
+  </g>
+  <g font-family="Consolas, monospace" font-size="16" fill="#777">
+    <text x="24" y="40">discphew</text>
+    <line x1="24" y1="568" x2="124" y2="568" stroke="#777" stroke-width="2"/>
+    <text x="134" y="573">10 mm</text>
+  </g>
+</svg>

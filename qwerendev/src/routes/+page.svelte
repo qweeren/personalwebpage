@@ -34,6 +34,13 @@
             description: 'A site that imitates Windows XP, with smaller projects of mine hosted on it.',
             image: '/personaldesktop.png',
             link: 'https://qweren.vercel.app'
+        },
+        {
+            title: 'discphew',
+            description: 'A tiny Windows tool for reading and writing CDs and DVDs, in a single ~300 KB .exe.',
+            subProjects: ['Disc Visualizer', 'Burner', 'Ripper', 'Album Player'],
+            image: '/discphew.svg',
+            link: 'https://github.com/qweeren/discphew'
         }
     ];
 
@@ -456,7 +463,7 @@
                             <img src={work.image} alt="" loading="lazy" />
                             <span class="f-osd f-tl"><i class="rec-dot"></i>rec</span>
                             <span class="f-osd f-tr">cam 0{i + 1}</span>
-                            <span class="f-osd f-bl">00:0{i}:{17 + i * 11}:0{(i * 7) % 10}</span>
+                            <span class="f-osd f-bl">00:0{i}:{String((17 + i * 11) % 60).padStart(2, '0')}:0{(i * 7) % 10}</span>
                             <span class="sweep"></span>
                         </a>
                     </div>
@@ -1107,6 +1114,7 @@
     .f1 { grid-column: 8 / 13; grid-row: 1; margin-top: 38vh; }
     .f2 { grid-column: 2 / 7; grid-row: 2; margin-top: 4vh; transform: rotate(-1.6deg); }
     .f3 { grid-column: 6 / 13; grid-row: 3; margin-top: -16vh; }
+    .f4 { grid-column: 1 / 6; grid-row: 4; margin-top: -6vh; transform: rotate(1.2deg); }
 
     .frame {
         position: relative;
@@ -1369,7 +1377,7 @@
         .tape-slot { transform: rotate(-2deg); justify-self: center; margin-top: 3vh; }
         .tool-row { margin-left: calc(var(--off) * 3vw); }
         .reel { display: flex; flex-direction: column; gap: 12vh; }
-        .f1, .f2, .f3 { margin-top: 0; }
+        .f1, .f2, .f3, .f4 { margin-top: 0; }
         .f1 { margin-left: 10vw; }
         .f3 { margin-right: 8vw; }
         .end-grid { grid-template-columns: 1fr; margin: 6vh 5vw 0; }

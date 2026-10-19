@@ -229,8 +229,7 @@
         background-color: var(--drywall);
         /* paper face of the board: fine fibres, plus soft blotches of joint compound */
         background-image:
-            url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.25 0 0 0 0 0.23 0 0 0 0 0.2 0.9 0 0 0 -0.38'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
-            url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='900' height='900'%3E%3Cfilter id='m'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.004' numOctaves='3' seed='4' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.95 0 0 0 0 0.94 0 0 0 0 0.91 1.4 0 0 0 -0.62'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23m)'/%3E%3C/svg%3E"),
+            url("https://qweren.com/static/wall.webp"),
             radial-gradient(ellipse 90% 55% at 50% 0%, rgba(255, 252, 244, 0.5), transparent 70%);
         font-family: var(--grot, 'Archivo', sans-serif);
         font-variation-settings: 'wdth' 80;

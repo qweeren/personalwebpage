@@ -1,7 +1,6 @@
 // The page's soundtrack: a 30s preview (via /api/preview) of whatever Last.fm says was
-// played last, plus a synthesized tape-rewind whine. We try to start it as soon as
-// the preview loads; most browsers block that until the visitor interacts, so
-// otherwise playback starts on their first click/tap/key.
+// played last, plus a synthesized tape-rewind whine. It stays paused until the
+// visitor presses play.
 
 const VOLUME_KEY = 'tape-volume';
 
@@ -10,8 +9,8 @@ export const tape = $state({
     track: null,
     src: '',
     playing: false,
-    // false once the visitor pauses it themselves; then we stop auto-starting it
-    wanted: true,
+    // true while the visitor has it switched on (survives the photography hold and rewinds)
+    wanted: false,
     volume: 0.45
 });
 
@@ -57,8 +56,8 @@ export async function setTrack(title, artist) {
         tape.src = src;
         const a = el();
         a.src = src;
-        // autoplay attempt; if the browser refuses, armAutostart picks it up on the first gesture
-        if (!held && (wasPlaying || tape.wanted)) a.play().catch(() => {});
+        // a new track while one was playing carries on playing
+        if (!held && wasPlaying) a.play().catch(() => {});
     } catch {
         if (lookup === key) tape.src = '';
     }
@@ -101,21 +100,14 @@ export function hold(on) {
     else if (tape.wanted && tape.src) el().play().catch(() => {});
 }
 
-// first gesture anywhere starts the music, unless the visitor already said no
-export function armAutostart() {
+// bring back the volume the visitor picked last time
+export function loadVolume() {
     try {
         const saved = parseFloat(localStorage.getItem(VOLUME_KEY) ?? '');
         if (saved >= 0 && saved <= 1) setVolume(saved);
     } catch {
         // no storage (private mode): keep the default
     }
-    const start = () => {
-        if (!held && tape.wanted && tape.src && !tape.playing) el().play().catch(() => {});
-        if (tape.src) off();
-    };
-    const off = () => ['pointerdown', 'keydown'].forEach((t) => removeEventListener(t, start, true));
-    ['pointerdown', 'keydown'].forEach((t) => addEventListener(t, start, true));
-    return off;
 }
 
 /**

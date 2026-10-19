@@ -1,6 +1,6 @@
 <script lang="ts">
     import { onMount } from 'svelte';
-    import { tape, setTrack, armAutostart } from '$lib/tape.svelte.js';
+    import { tape, setTrack, loadVolume } from '$lib/tape.svelte.js';
 
     // Types for Last.fm API response
     interface LastFmImage {
@@ -69,11 +69,8 @@
     onMount(() => {
       fetchNowPlaying();
       const interval = setInterval(fetchNowPlaying, 30000);
-      const disarm = armAutostart();
-      return () => {
-        clearInterval(interval);
-        disarm();
-      };
+      loadVolume();
+      return () => clearInterval(interval);
     });
 </script>
 

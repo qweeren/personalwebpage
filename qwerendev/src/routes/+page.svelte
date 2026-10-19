@@ -791,6 +791,8 @@
     /* ---------- intro ---------- */
     .intro {
         height: 100vh;
+        /* mobile 100vh ignores the browser toolbar and pushes the name off-screen */
+        height: 100svh;
         min-height: 560px;
         background: var(--void);
     }
@@ -1547,6 +1549,7 @@
         .osd-l { left: 44px; }
         .osd-r { right: 44px; font-size: 0.8rem; }
         .cam-osd { left: 44px; }
+        .name { bottom: calc(var(--tl-h) + 7svh); }
         .scroll-cue { display: none; }
         .about-top {
             grid-template-columns: 5vw minmax(0, 1fr) 5vw;

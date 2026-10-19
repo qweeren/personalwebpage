@@ -4,6 +4,7 @@
     import { onMount, tick } from 'svelte';
     import Cursor from '$lib/Cursor.svelte';
     import { photos, transit } from '$lib/photos.js';
+    import { hold } from '$lib/tape.svelte.js';
 
     // arrived through the camera's flash: the wall develops out of the white
     const flashed = transit.flash;
@@ -119,6 +120,8 @@
 
     onMount(() => {
         reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+        // no soundtrack on the wall; it comes back on the way out
+        hold(true);
         // the home page paints <html> black; the wall runs to the edges
         const root = document.documentElement;
         const bg = root.style.background;
@@ -126,6 +129,7 @@
         return () => {
             root.style.background = bg;
             root.style.overflow = '';
+            hold(false);
         };
     });
 </script>

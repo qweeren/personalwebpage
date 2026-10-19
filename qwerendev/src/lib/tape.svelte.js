@@ -20,6 +20,8 @@ let audio = null;
 /** @type {AudioContext | null} */
 let ac = null;
 let lookup = '';
+// true while on a page that should be quiet (the photography wall)
+let held = false;
 
 function el() {
     if (!audio) {
@@ -56,7 +58,7 @@ export async function setTrack(title, artist) {
         const a = el();
         a.src = src;
         // autoplay attempt; if the browser refuses, armAutostart picks it up on the first gesture
-        if (wasPlaying || tape.wanted) a.play().catch(() => {});
+        if (!held && (wasPlaying || tape.wanted)) a.play().catch(() => {});
     } catch {
         if (lookup === key) tape.src = '';
     }
@@ -88,6 +90,17 @@ export function setVolume(v) {
     }
 }
 
+/**
+ * Silence the soundtrack while a page that shouldn't have it is open, and pick it
+ * back up afterwards if the visitor hadn't paused it themselves.
+ * @param {boolean} on
+ */
+export function hold(on) {
+    held = on;
+    if (on) audio?.pause();
+    else if (tape.wanted && tape.src) el().play().catch(() => {});
+}
+
 // first gesture anywhere starts the music, unless the visitor already said no
 export function armAutostart() {
     try {
@@ -97,7 +110,7 @@ export function armAutostart() {
         // no storage (private mode): keep the default
     }
     const start = () => {
-        if (tape.wanted && tape.src && !tape.playing) el().play().catch(() => {});
+        if (!held && tape.wanted && tape.src && !tape.playing) el().play().catch(() => {});
         if (tape.src) off();
     };
     const off = () => ['pointerdown', 'keydown'].forEach((t) => removeEventListener(t, start, true));
@@ -183,7 +196,7 @@ export function rewindSound(ms) {
     setTimeout(() => {
         if (!audio || !tape.src) return;
         audio.currentTime = 0;
-        if (tape.wanted) audio.play().catch(() => {});
+        if (tape.wanted && !held) audio.play().catch(() => {});
     }, ms + 180);
 }
 

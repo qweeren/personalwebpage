@@ -1555,6 +1555,9 @@
         .study { padding-left: 0; }
         .tape-slot { transform: rotate(-2deg); justify-self: center; margin-top: 3vh; }
         .tool-row { margin-left: calc(var(--off) * 3vw); }
+        .about { padding-bottom: 4vh; }
+        .hobbies { padding-top: 4vh; }
+        .hob-title { margin-top: 2vh; }
         .cam-card { aspect-ratio: 4 / 3; }
         .cam-card img { top: 22%; }
         .cam-cue { left: 4%; right: auto; }

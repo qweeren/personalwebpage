@@ -1,12 +1,14 @@
 <script>
     import { onMount } from 'svelte';
+    import { goto } from '$app/navigation';
     import { Github } from 'lucide-svelte';
     import HeroBackground from '$lib/HeroBackground.svelte';
     import Professions from '$lib/Professions.svelte';
     import Status from '$lib/Status.svelte';
     import Timeline from '$lib/Timeline.svelte';
     import Cursor from '$lib/Cursor.svelte';
-    import { rewindSound } from '$lib/tape.svelte.js';
+    import { rewindSound, armShutter, shutterSound } from '$lib/tape.svelte.js';
+    import { photos, transit } from '$lib/photos.js';
 
     const works = [
         {
@@ -59,6 +61,7 @@
         { id: 'intro', label: 'intro' },
         { id: 'about', label: 'about' },
         { id: 'hobbies', label: 'hobbies' },
+        { id: 'photography', label: 'photos' },
         { id: 'projects', label: 'projects' },
         { id: 'end', label: 'end' }
     ];
@@ -94,6 +97,8 @@
     let clock = $state('');
     let flashKey = $state(0);
     let rewinding = $state(false);
+    /** @type {{ x: number, y: number } | null} */
+    let burst = $state(null);
 
     let reduce = false;
     let lastFlashAt = 0;
@@ -153,6 +158,22 @@
             }
         };
         requestAnimationFrame(step);
+    }
+
+    // the camera fires its flash, and the next page develops out of the white
+    /** @param {MouseEvent} e */
+    function shoot(e) {
+        if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+        e.preventDefault();
+        if (burst) return;
+        shutterSound();
+        if (reduce) return void goto('/photography');
+        // the pop-up flash sits on top of the pentaprism, above the logo
+        const img = /** @type {HTMLElement} */ (e.currentTarget).querySelector('img');
+        const r = /** @type {HTMLImageElement} */ (img).getBoundingClientRect();
+        burst = { x: r.left + r.width * 0.5, y: r.top + r.height * 0.06 };
+        transit.flash = true;
+        setTimeout(() => goto('/photography').finally(() => (burst = null)), 260);
     }
 
     function measure() {
@@ -350,6 +371,11 @@
         <div class="flash" aria-hidden="true"></div>
     {/key}
 {/if}
+{#if burst}
+    <div class="burst" style="--fx: {burst.x}px; --fy: {burst.y}px" aria-hidden="true">
+        <span class="burst-glow"></span><span class="burst-streak"></span>
+    </div>
+{/if}
 {#if rewinding}
     <div class="rew" aria-live="polite">
         <span class="rew-glyph" aria-hidden="true">◀◀</span> rewinding
@@ -449,6 +475,21 @@
             {/each}
         </ul>
         {@render chain(true, 3)}
+    </section>
+
+    <!-- PHOTOGRAPHY -->
+    <section id="photography" class="scene photography" class:is-current={current === 'photography'}>
+        <h2 class="caption-box photo-title" use:cut>photography</h2>
+        <a class="camera" href="/photography" onclick={shoot} onpointerenter={armShutter} onfocus={armShutter} use:cut={120}>
+            <span class="cam-card">
+                <img src="/camera.png" alt="" width="300" height="238" loading="lazy" />
+                <span class="af" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+                <span class="lens-osd cam-tl" aria-hidden="true">M&nbsp; 1/800&nbsp; F1.8&nbsp; ISO 100</span>
+                <span class="lens-osd cam-tr" aria-hidden="true"><i class="af-dot"></i>[{photos.length}]</span>
+                <span class="lens-osd cam-bl" aria-hidden="true">eos 700d</span>
+                <span class="cam-cue">see my photos <span aria-hidden="true">▸</span></span>
+            </span>
+        </a>
     </section>
 
     <!-- PROJECTS -->
@@ -1093,6 +1134,144 @@
     .strip-3:hover { background: var(--flash); }
     @keyframes marquee { to { transform: translateX(-50%); } }
 
+    /* ---------- photography ---------- */
+    .photography {
+        min-height: 0;
+        padding: 8vh 4vw 14vh;
+    }
+    .photo-title {
+        margin: 0 0 4vh 9vw;
+        transform: rotate(1.8deg);
+    }
+    .camera {
+        display: block;
+        width: min(900px, 100%);
+        margin: 0 auto;
+        color: var(--flash);
+        text-decoration: none;
+        transform: rotate(-1.2deg);
+    }
+    .cam-card {
+        position: relative;
+        display: block;
+        aspect-ratio: 16 / 10;
+    }
+    .cam-card img {
+        position: absolute;
+        left: 20%;
+        top: 16%;
+        width: 60%;
+        height: auto;
+        /* a small, crushed print blown up: chunky pixels like the rest of the footage */
+        image-rendering: pixelated;
+        transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+    .camera:hover .cam-card img { transform: scale(1.035); }
+    .camera:active .cam-card img { transform: scale(1.01); transition-duration: 0.06s; }
+
+    /* autofocus brackets: they close in on a half-press (hover) */
+    .af {
+        position: absolute;
+        inset: 9% 12% 12%;
+        transition: inset 0.18s steps(3);
+    }
+    .af i {
+        position: absolute;
+        width: 7%;
+        aspect-ratio: 1;
+        border: 0 solid var(--flash);
+    }
+    .af i:nth-child(1) { top: 0; left: 0; border-top-width: 3px; border-left-width: 3px; }
+    .af i:nth-child(2) { top: 0; right: 0; border-top-width: 3px; border-right-width: 3px; }
+    .af i:nth-child(3) { bottom: 0; left: 0; border-bottom-width: 3px; border-left-width: 3px; }
+    .af i:nth-child(4) { bottom: 0; right: 0; border-bottom-width: 3px; border-right-width: 3px; }
+    .camera:hover .af,
+    .camera:focus-visible .af { inset: 21% 30% 27%; }
+    .camera:hover .af i,
+    .camera:focus-visible .af i { border-color: #4fc46f; }
+
+    .lens-osd {
+        position: absolute;
+        font-variation-settings: 'wdth' 62;
+        font-weight: 700;
+        font-size: clamp(0.72rem, 1.4vw, 1rem);
+        text-transform: uppercase;
+        white-space: nowrap;
+        font-variant-numeric: tabular-nums;
+    }
+    .cam-tl { top: 5%; left: 4%; }
+    .cam-tr { top: 5%; right: 4%; display: flex; align-items: center; gap: 0.5em; }
+    .cam-bl { bottom: 6%; left: 4%; color: var(--ash); }
+    .af-dot {
+        width: 0.6em;
+        height: 0.6em;
+        border-radius: 50%;
+        background: #4fc46f;
+        visibility: hidden;
+    }
+    .camera:hover .af-dot,
+    .camera:focus-visible .af-dot { visibility: visible; animation: blink 0.5s steps(1) 2; }
+    .cam-cue {
+        position: absolute;
+        right: 4%;
+        bottom: 5%;
+        font-family: var(--grot);
+        font-variation-settings: 'wdth' 62;
+        font-weight: 900;
+        font-size: clamp(1.1rem, 2.6vw, 2rem);
+        text-transform: uppercase;
+        line-height: 1;
+        padding: 0.15em 0.35em 0.2em;
+        border: 2px solid var(--flash);
+        color: var(--flash);
+    }
+    .camera:hover .cam-cue {
+        background: var(--flash);
+        color: var(--void);
+        box-shadow: 5px 0 0 var(--nv), -5px 0 0 var(--soot);
+    }
+
+    .burst {
+        position: fixed;
+        inset: 0;
+        z-index: 95;
+        pointer-events: none;
+        animation: whiteout 0.26s ease-in forwards;
+    }
+    .burst-glow {
+        position: absolute;
+        left: calc(var(--fx) - 20px);
+        top: calc(var(--fy) - 20px);
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: #fff;
+        box-shadow: 0 0 30px 16px #fff;
+        animation: burst 0.24s cubic-bezier(0.3, 0.6, 0.3, 1) forwards;
+    }
+    .burst-streak {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: calc(var(--fy) - 2px);
+        height: 4px;
+        background: linear-gradient(to right, transparent, #fff 35%, #fff 65%, transparent);
+        box-shadow: 0 0 18px 4px rgba(255, 255, 255, 0.9);
+        animation: streak 0.12s ease-out both;
+    }
+    @keyframes burst {
+        from { transform: scale(0.15); }
+        to { transform: scale(150); }
+    }
+    @keyframes streak {
+        from { transform: scaleX(0); }
+        to { transform: scaleX(1); }
+    }
+    @keyframes whiteout {
+        0%, 45% { background: transparent; }
+        100% { background: #fff; }
+    }
+
     /* ---------- projects ---------- */
     .projects { padding: 12vh 4vw 18vh; }
     .proj-title {
@@ -1376,6 +1555,10 @@
         .study { padding-left: 0; }
         .tape-slot { transform: rotate(-2deg); justify-self: center; margin-top: 3vh; }
         .tool-row { margin-left: calc(var(--off) * 3vw); }
+        .cam-card { aspect-ratio: 4 / 3; }
+        .cam-card img { top: 22%; }
+        .cam-cue { left: 4%; right: auto; }
+        .cam-bl { display: none; }
         .reel { display: flex; flex-direction: column; gap: 12vh; }
         .f1, .f2, .f3, .f4 { margin-top: 0; }
         .f1 { margin-left: 10vw; }

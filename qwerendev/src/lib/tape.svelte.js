@@ -186,3 +186,22 @@ export function rewindSound(ms) {
         if (tape.wanted) audio.play().catch(() => {});
     }, ms + 180);
 }
+
+/** @type {HTMLAudioElement | null} */
+let shutter = null;
+
+// load the shutter ahead of time, so the click lands with the flash
+export function armShutter() {
+    if (shutter) return;
+    shutter = new Audio('/sounds/shutter.mp3');
+    shutter.preload = 'auto';
+}
+
+/** The camera firing: a real 700D shutter. Keeps playing across the page change. */
+export function shutterSound() {
+    armShutter();
+    const s = /** @type {HTMLAudioElement} */ (shutter);
+    s.volume = Math.max(0.35, tape.volume);
+    s.currentTime = 0;
+    s.play().catch(() => {});
+}

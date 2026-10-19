@@ -19,3 +19,6 @@ Thumbs.db
 # Vite
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+
+# Photo originals (web copies live in static/photography, see scripts/photos.py)
+/static/photos

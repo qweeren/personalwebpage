@@ -247,10 +247,7 @@
 
             let now = clips[0].id;
             for (const c of clips) if (progress >= c.start - 0.0001) now = c.id;
-            if (now !== current) {
-                current = now;
-                if (!rewinding) fire();
-            }
+            if (now !== current) current = now;
         };
         raf = requestAnimationFrame(loop);
 

@@ -20,5 +20,5 @@ Thumbs.db
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 
-# Photo originals (web copies live in static/photography, see scripts/photos.py)
+# Old photo originals folder (now drop originals straight into static/photography/full)
 /static/photos

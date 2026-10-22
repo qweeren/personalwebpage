@@ -1,4 +1,4 @@
-// The photo roll for /photography. photos.json is written by scripts/photos.py.
+// The photo roll for /photography. photos.json is kept up to date by scripts/photos.js.
 import roll from './photos.json';
 
 // set by the camera on the home page right before it navigates, so the gallery
